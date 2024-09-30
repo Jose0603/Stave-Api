@@ -7,9 +7,9 @@ using Stave_Api.Data.Models;
 
 namespace Stave_Api.Services.Exchange_Service
 {
-    internal interface ICurrencyFreaks
+    public interface ICurrencyFreaksService
     {
-        //Get Rates of Desired Currencies Only
-        Task<CurrencyResponse> GetRates(string OriginalCurrency, string TargetCurrency);
+        //Get All Prducts to exchange
+        Task<List<Product>> Exchange(List<Product> products);
     }
 }
