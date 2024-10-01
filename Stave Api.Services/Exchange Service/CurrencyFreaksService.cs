@@ -6,12 +6,20 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace Stave_Api.Services.Exchange_Service
 {
     public class CurrencyFreaksService : ICurrencyFreaksService
     {
-        private static readonly string apiUrl = "https://api.currencyfreaks.com/v2.0/rates/latest?apikey=c69b360ee4b44e25950711867cf2d53f&symbols=PKR,GBP,EUR,USD";
+        private readonly string _apiKey;
+        private readonly string apiUrl;
+        public CurrencyFreaksService(IConfiguration configuration)
+        {
+            // Retrieve the API key from appsettings.json
+            _apiKey = configuration["CurrencyFreaks:ApiKey"];
+            apiUrl = $"https://api.currencyfreaks.com/v2.0/rates/latest?apikey={_apiKey}&symbols=";
+        }
         public async Task<List<Product>> Exchange(List<Product> products)
         {
             try
@@ -24,16 +32,26 @@ namespace Stave_Api.Services.Exchange_Service
 
                 var currencyResponse = await GetRates(TargetCurrency, OriginalCurrency);
 
-                if (currencyResponse?.Rates != null && currencyResponse.Rates.TryGetValue(OriginalCurrency, out var exchangeRate))
+                if (currencyResponse?.Rates != null && currencyResponse.Rates.TryGetValue(OriginalCurrency, out var originalCurrencyRate))
                 {
+                    decimal exchangeRate = originalCurrencyRate;
+
+                    if (TargetCurrency != "USD" && currencyResponse.Rates.TryGetValue(TargetCurrency, out var targetCurrencyRate))
+                    {
+                        exchangeRate = targetCurrencyRate / originalCurrencyRate;
+                    }
+
                     if (exchangeRate == 0)
+                    {
                         throw new InvalidOperationException($"Exchange rate for currency '{OriginalCurrency}' not found or is zero.");
+                    }
 
                     Parallel.ForEach(products, product =>
                     {
-                        product.ExchangePrice = product.Price * exchangeRate;
+                        product.ExchangePrice = Math.Round(product.Price * exchangeRate, 2, MidpointRounding.AwayFromZero);
                     });
-                }
+                }              
+
                 else
                     throw new InvalidOperationException("Currency response or rates are null.");
                 
@@ -54,7 +72,7 @@ namespace Stave_Api.Services.Exchange_Service
             {
                 try
                 {
-                    HttpResponseMessage response = await client.GetAsync(apiUrl);
+                    HttpResponseMessage response = await client.GetAsync(apiUrl+ TargetCurrency+","+ OriginalCurrency);
                     response.EnsureSuccessStatusCode(); // Throws if not a success status
 
                     string responseBody = await response.Content.ReadAsStringAsync();
