@@ -33,6 +33,11 @@ namespace Stave_Api
             services.AddScoped<ICurrencyFreaksService, CurrencyFreaksService>();
             services.AddScoped<IProductService, ProductService>();
 
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+            });
 
             services.AddCors();
             services.AddControllers();

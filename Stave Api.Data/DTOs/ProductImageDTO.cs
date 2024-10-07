@@ -5,7 +5,7 @@ namespace Stave_Api.Data.DTOs;
 
 public partial class ProductImageDTO
 {
-    public int ImageId { get; set; }
+    public int? ImageId { get; set; }
 
     public string ImageUrl { get; set; } = null!;
 

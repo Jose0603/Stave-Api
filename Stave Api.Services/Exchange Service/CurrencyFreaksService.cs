@@ -36,6 +36,11 @@ namespace Stave_Api.Services.Exchange_Service
                 {
                     decimal exchangeRate = originalCurrencyRate;
 
+                    if(OriginalCurrency != "USD")
+                    {
+                        exchangeRate = 1/ originalCurrencyRate;
+                    }
+
                     if (TargetCurrency != "USD" && currencyResponse.Rates.TryGetValue(TargetCurrency, out var targetCurrencyRate))
                     {
                         exchangeRate = targetCurrencyRate / originalCurrencyRate;

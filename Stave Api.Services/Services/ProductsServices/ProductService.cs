@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Stave_Api.Data.DTOs;
 using Stave_Api.Data.Models;
 using Stave_Api.Services.Repositories;
@@ -19,9 +20,47 @@ namespace Stave_Api.Services.Services.ProductsServices
             _unitOfWork = unitOfWork;
         }
 
-        public Task<CustomHttpResponse> BulkCreate(List<ProductDTO> itemList)
+        public async Task<CustomHttpResponse> BulkCreate(List<ProductDTO> itemList)
         {
-            throw new NotImplementedException();
+            CustomHttpResponse response = new CustomHttpResponse();
+
+            try
+            {
+                // Map DTOs to entities
+                var createProducts = itemList.Select(_mapper.Map<Product>).ToList();
+
+                // Ensure there are products to create
+                if (createProducts != null && createProducts.Count > 0)
+                {
+                    // Insert products into the database (using your ORM or data access)
+                    _unitOfWork.ProductsRepository.AddRange(createProducts); // Assuming Entity Framework is being used
+
+                    // Save changes to the database
+                     _unitOfWork.ProductsRepository.SaveChanges();
+
+                    // Return the created products as part of the response (optional)
+                    response.Data = createProducts;
+                }
+                else
+                {
+                    response.Data = new List<object>(); // Return an empty list if no products were created
+                }
+
+                response.Success = true;
+                response.StatusCode = HttpStatusCode.OK;
+            }
+            catch (Exception ex)
+            {
+                // Handle the error and set the response accordingly
+                ErrorHandler.HandleErrorWithResponse(
+                    ex,
+                    response,
+                    "An error occurred while processing the request.",
+                    HttpStatusCode.Conflict
+                );
+            }
+
+            return response; // Return the response object
         }
 
         public Task<CustomHttpResponse> Create(ProductDTO newItem)

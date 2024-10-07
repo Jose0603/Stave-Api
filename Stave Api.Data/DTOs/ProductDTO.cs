@@ -9,7 +9,7 @@ public partial class ProductDTO
 
     public string Title { get; set; } = null!;
 
-    public string Category { get; set; } = null!;
+    public string? Category { get; set; } = null!;
 
     public decimal Price { get; set; }
 
@@ -26,5 +26,6 @@ public partial class ProductDTO
     public string? AdditionalInfo { get; set; }
 
     public string? Notes { get; set; }
+    public string Page { get; set; }
     public List<ProductImageDTO> ProductImages { get; set; }
 }
