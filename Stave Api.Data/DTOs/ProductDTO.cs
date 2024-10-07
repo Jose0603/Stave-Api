@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Stave_Api.Data.Models;
+namespace Stave_Api.Data.DTOs;
 
-public partial class Product
+public partial class ProductDTO
 {
     public int ProductId { get; set; }
 
@@ -26,6 +26,5 @@ public partial class Product
     public string? AdditionalInfo { get; set; }
 
     public string? Notes { get; set; }
-
-    public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+    public List<ProductImageDTO> ProductImages { get; set; }
 }

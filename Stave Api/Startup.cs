@@ -1,8 +1,12 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
+using Stave_Api.Data;
 using Stave_Api.Services.Exchange_Service;
+using Stave_Api.Services.Repositories;
+using Stave_Api.Services.Services.ProductsServices;
 using System.Text;
 
 namespace Stave_Api
@@ -19,15 +23,22 @@ namespace Stave_Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddAutoMapper(c => c.AddProfile<AutoMapping>(), typeof(Startup));
+            var _GetConnectionString = Configuration.GetConnectionString("connMSSQL");
+            services.AddDbContext<StaveContext>(options => options.UseSqlServer(_GetConnectionString));
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             //all bll services
             services.AddScoped<ICurrencyFreaksService, CurrencyFreaksService>();
-            
+            services.AddScoped<IProductService, ProductService>();
+
+
             services.AddCors();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "FoodIntelligenceApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "StaveApi", Version = "v1" });
 
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
                 {

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Stave_Api.Data.Models;
+using Stave_Api.Data.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +20,7 @@ namespace Stave_Api.Services.Exchange_Service
             _apiKey = configuration["CurrencyFreaks:ApiKey"];
             apiUrl = $"https://api.currencyfreaks.com/v2.0/rates/latest?apikey={_apiKey}&symbols=";
         }
-        public async Task<List<Product>> Exchange(List<Product> products)
+        public async Task<List<ProductChange>> Exchange(List<ProductChange> products)
         {
             try
             {
